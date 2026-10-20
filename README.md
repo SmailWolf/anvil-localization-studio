@@ -1,6 +1,6 @@
-# Anvil Localization Studio · 0.7.0-beta.2
+# Anvil Localization Studio · 0.8.0-beta.1
 
-**Beta software.** C++20 / Qt 6 desktop localization editor for **Ghost Recon Wildlands** and **Ghost Recon Breakpoint**. Ukrainian and English interface. Local English → Ukrainian translation with TranslateGemma 4B.
+**Beta software.** C++20 / Qt 6 desktop localization editor for **Ghost Recon Wildlands** and **Ghost Recon Breakpoint**. Ukrainian and English interface. Local English → Ukrainian / Belarusian translation with TranslateGemma 4B, plus a font kit covering both alphabets.
 
 **No game files, extracted game text, completed game translations, patches, or model weights are included.** The user supplies a legally obtained game installation. Test fixtures and examples contain synthetic data only. Extraction reads game archives; packaging writes separate output outside the installation.
 
@@ -21,13 +21,14 @@ Choose **Translation → Download model…**. TranslateGemma 4B Q4_K_M is downlo
 - Separate game profiles and format plugins; JSON project import/export, CSV import/export, glossary, translation statuses, autosaves and backups.
 - English package extraction and project update with translation carry-over by ID/source.
 - Local TranslateGemma batch translation, all untranslated rows, exact duplicate grouping, placeholder checks, service-text filtering, progress cache and review before applying.
+- Bundled Noto Sans (OFL-1.1), Ukrainian/Belarusian glyph checks, font preview/export, and optional experimental raw GFOF v3.3 compilation on Linux and Windows. [Font guide](docs/FONTS.md).
 - Experimental translation packaging into a new external folder, with optional full modified archive copies. It does not install the result.
 
 ## Beta limits
 
 This is **not general `.forge` support**. The readers cover the observed Wildlands v27 / CFD v1 LZO and Breakpoint LocalizationPackage / CFD v3 variants described in the format documentation. Future game updates may need reader changes.
 
-Packaging has been checked by decoding its output and comparing resources. **Newly packaged archives have not been verified to run in either game.** UMAC is not recalculated and Ukrainian font coverage is not added. A structurally valid package is not a confirmed playable mod. The Windows package includes CPU inference only. CUDA is included in the earlier Linux package but has not been runtime tested for this release. English → Ukrainian is the only configured model translation direction.
+Packaging has been checked by decoding its output and comparing resources. **Newly packaged archives have not been verified to run in either game.** UMAC is not recalculated and The translation packer does not insert fonts. Font coverage and an experimental raw GFOF compiler are available separately; in-game rendering remains unverified. A structurally valid package is not a confirmed playable mod. The Windows package includes CPU inference only. CUDA is included in the earlier Linux package but has not been runtime tested for this release. Choose Ukrainian (`uk`) or Belarusian (`be`) in Project → Project languages before translating. Keep separate projects for each target. Model output is a draft requiring human review.
 
 ## Build and tests
 

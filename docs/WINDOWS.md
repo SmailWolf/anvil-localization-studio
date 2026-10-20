@@ -1,4 +1,4 @@
-# Windows x64 · 0.7.0-beta.2
+# Windows x64 · 0.8.0-beta.1
 
 The Windows package is built natively on GitHub Actions using Windows Server 2022, MSYS2 UCRT64, Qt 6 and GCC. It targets Windows 10/11 x64. The bundled CPU engine requires SSE4.2 and BMI2 instructions. The package contains the application, readers, packager, decompression helper, Qt platform/TLS plugins, LZO2 and compiler runtime DLLs. No separate Qt SDK, MSYS2 or Wine installation is needed to run it.
 
@@ -34,3 +34,6 @@ See [English guide](USER-GUIDE.en.md), [українська інструкці�
 Verified native build: [GitHub Actions run 39437800774](https://github.com/SmailWolf/anvil-localization-studio/actions/runs/39437800774). All 15 Windows test suites, clean-PATH deployment probes and real CPU translation/GUI tests passed.
 
 Build references: [MSYS2 CI](https://www.msys2.org/docs/ci/), [Qt Windows deployment](https://doc.qt.io/qt-6/windows-deployment.html), [Qt command-line behavior on Windows](https://doc.qt.io/qt-6/qcommandlineparser.html).
+
+
+0.8 beta: English → Ukrainian (`uk`) and Belarusian (`be`) projects are supported. Keep one target language per project. Font kit preparation for both alphabets is separate from archive packaging; native game font rendering remains unverified. See [font guide](FONTS.md).

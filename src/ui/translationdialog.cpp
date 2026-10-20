@@ -29,13 +29,14 @@ QString enginePath(bool cuda) {
     return QDir::cleanPath(path);
 }
 }
-TranslationDialog::TranslationDialog(const QVector<anvil::Entry> &entries, const QVector<anvil::Term> &glossary, QWidget *parent)
-    : QDialog(parent), entries_(entries), glossary_(glossary) {
+TranslationDialog::TranslationDialog(const QVector<anvil::Entry> &entries, const QVector<anvil::Term> &glossary, QWidget *parent, const QString &targetLanguage)
+    : QDialog(parent), targetLanguage_(targetLanguage), entries_(entries), glossary_(glossary) {
     setWindowTitle(QCoreApplication::translate("Anvil", "Локальний переклад — TranslateGemma 4B"));
     resize(1050, 700);
     auto *layout = new QVBoxLayout(this);
-    auto *notice = new QLabel(QCoreApplication::translate("Anvil", "English → Українська. Тексти обробляються на цьому комп’ютері. "
-                             "Після перекладу перевірте результат і застосуйте позначені рядки."), this);
+    auto *notice = new QLabel(QCoreApplication::translate("Anvil", "English → %1. Тексти обробляються на цьому комп’ютері. "
+                             "Після перекладу перевірте результат і застосуйте позначені рядки.").arg(
+                                 targetLanguage_ == "be" ? QString("Беларуская") : QCoreApplication::translate("Anvil", "Українська")), this);
     notice->setWordWrap(true); layout->addWidget(notice);
     auto *form = new QFormLayout;
     QSettings settings;
@@ -157,6 +158,7 @@ void TranslationDialog::start() {
     table_->setUpdatesEnabled(true);
     if (job_.entries.isEmpty()) { status_->setText(QCoreApplication::translate("Anvil", "Немає рядків для перекладу.")); return; }
     job_.settings={server_->text().trimmed(),model_->text().trimmed(),cuda_->isChecked(),threads_->value()};
+    job_.settings.targetLanguage=targetLanguage_;
     if (useCache_->isChecked()) {
         const auto cacheDir=QStandardPaths::isTestModeEnabled() ? QDir::tempPath()+"/anvil-ui-tests-cache"
             : QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);

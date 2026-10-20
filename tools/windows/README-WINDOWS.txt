@@ -1,4 +1,4 @@
-Anvil Localization Studio 0.7.0-beta.2 — Windows x64
+Anvil Localization Studio 0.8.0-beta.1 — Windows x64
 BETA / БЕТА
 
 1. Extract the whole ZIP into a folder outside the installed game.

@@ -1,5 +1,6 @@
 #include "ui/mainwindow.h"
 #include <QPlainTextEdit>
+#include <QLabel>
 #include <QAction>
 #include <QDialog>
 #include <QPushButton>
@@ -18,6 +19,7 @@
 #include <QtTest>
 #include <QTranslator>
 #include "ui/modeldownloaddialog.h"
+#include "ui/fontdialog.h"
 class UiTests : public QObject {
     Q_OBJECT
   private slots:
@@ -34,10 +36,51 @@ class UiTests : public QObject {
             bool project=false,download=false;
             for(auto *a:window.findChildren<QAction*>()){project|=a->text()=="Project";download|=a->text()=="Download model…";}
             QVERIFY(project);QVERIFY(download);
+            FontDialog fonts(&window);QCOMPARE(fonts.windowTitle(),QString("Fonts — Ukrainian + Belarusian"));
             ModelDownloadDialog dialog(&window);QCOMPARE(dialog.windowTitle(),QString("Download translation model"));
             QCOMPARE(window.findChild<QLineEdit*>("search")->placeholderText(),QString("Search all fields…"));
         }
         qApp->removeTranslator(&translator);
+    }
+    void fontDialogBothLanguages() {
+        FontDialog dialog;dialog.show();
+        auto *language=dialog.findChild<QComboBox*>("fontLanguage");QVERIFY(language);
+        QCOMPARE(language->currentData().toString(),QString("both"));
+        auto *report=dialog.findChild<QPlainTextEdit*>("fontReport");QVERIFY(report);
+        QVERIFY(report->toPlainText().contains("Відсутні літери: немає"));
+        auto *save=dialog.findChild<QPushButton*>("exportFontKit");QVERIFY(save&&save->isEnabled());
+        language->setCurrentIndex(language->findData("be"));QVERIFY(save->isEnabled());
+        language->setCurrentIndex(language->findData("uk"));QVERIFY(save->isEnabled());
+        const auto screenshot=qEnvironmentVariable("ANVIL_FONT_SCREENSHOT");
+        if(!screenshot.isEmpty()){language->setCurrentIndex(0);QVERIFY(dialog.grab().save(screenshot));}
+    }
+    void projectLanguageSelectionAndExistingTranslationGuard() {
+        MainWindow window;anvil::Document doc;doc.entries={{"a","Settings","","","todo"}};
+        window.loadExample(doc);window.show();
+        QAction *action=nullptr;for(auto *a:window.findChildren<QAction*>())if(a->text()=="Мови проєкту…")action=a;
+        QVERIFY(action);bool selected=false;
+        QTimer::singleShot(0,&window,[&]{
+            auto *combo=window.findChild<QComboBox*>("projectTargetLanguage");if(!combo)return;
+            combo->setCurrentIndex(combo->findData("be"));selected=true;
+            qobject_cast<QDialog*>(combo->parentWidget())->accept();
+        });action->trigger();QVERIFY(selected);
+        // Verify that the chosen project language reaches the translation preview.
+        bool belarusianPreview=false;
+        QTimer::singleShot(0,&window,[&]{
+            if(auto *d=window.findChild<QDialog*>()){
+                for(auto *l:d->findChildren<QLabel*>())belarusianPreview|=l->text().contains("English → Беларуская");
+                d->reject();
+            }
+        });
+        for(auto *a:window.findChildren<QAction*>())if(a->text()=="Перекласти всі неперекладені…")a->trigger();
+        QVERIFY(belarusianPreview);
+        // A translated document cannot be silently relabeled as the other language.
+        doc.entries[0].translation="Налаштування";doc.entries[0].status="reviewed";window.loadExample(doc);
+        bool refused=false;QTimer poll;poll.setInterval(10);
+        connect(&poll,&QTimer::timeout,&window,[&]{
+            if(auto *message=window.findChild<QMessageBox*>()){refused=message->text().contains("вже є переклади");message->accept();poll.stop();return;}
+            if(auto *combo=window.findChild<QComboBox*>("projectTargetLanguage")){combo->setCurrentIndex(combo->findData("be"));qobject_cast<QDialog*>(combo->parentWidget())->accept();}
+        });poll.start();action->trigger();poll.stop();QVERIFY(refused);
     }
     void packageFromGui() {
         QTemporaryDir temp;QVERIFY(temp.isValid());

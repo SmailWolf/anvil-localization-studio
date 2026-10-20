@@ -10,6 +10,7 @@ on:
       - 'tests/**'
       - 'tools/**'
       - 'translations/**'
+      - 'assets/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -76,7 +77,7 @@ jobs:
       - name: Verify deployed package without MSYS2 on PATH
         shell: pwsh
         run: |
-          $stage = Join-Path $PWD 'dist/Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64'
+          $stage = Join-Path $PWD 'dist/Anvil-Localization-Studio-0.8.0-beta.1-Windows-x64'
           $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
           $env:QT_QPA_PLATFORM = 'offscreen'
           Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
@@ -117,14 +118,17 @@ jobs:
             https://huggingface.co/mradermacher/translategemma-4b-it-GGUF/resolve/d37868f759d2f817a43d28dd80cf9f982ffa62fd/translategemma-4b-it.Q4_K_M.gguf
           printf '%s\n' '81200d03e843d2ec1ece6eeafe7d13cb6e5211e1fcd336ade55790b683a08330  .build/models/translategemma.gguf' | sha256sum --check
           export ANVIL_TRANSLATION_MODEL="$(cygpath -m "$PWD/.build/models/translategemma.gguf")"
-          export ANVIL_TRANSLATION_SERVER="$(cygpath -m "$PWD/dist/Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64/engine/cpu/llama-server.exe")"
-          ./build/anvil_translation_tests.exe realModel
-          ./build/anvil_ui_tests.exe realModelPreviewApply
+          export ANVIL_TRANSLATION_SERVER="$(cygpath -m "$PWD/dist/Anvil-Localization-Studio-0.8.0-beta.1-Windows-x64/engine/cpu/llama-server.exe")"
+          export ANVIL_TRANSLATION_REPORT="$(cygpath -m "$PWD/build/real-model")"
+          ./build/anvil_translation_tests.exe realModel -o build/real-model-tests.txt,txt
+          cat build/real-model-tests.txt
+          ./build/anvil_ui_tests.exe realModelPreviewApply -o build/real-model-ui.txt,txt
+          cat build/real-model-ui.txt
       - name: Archive distributable and checksums
         run: |
           cd dist
-          zip -q -r Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64.zip Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64
-          sha256sum Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64.zip > Anvil-Localization-Studio-0.7.0-beta.2-Windows-SHA256SUMS.txt
+          zip -q -r Anvil-Localization-Studio-0.8.0-beta.1-Windows-x64.zip Anvil-Localization-Studio-0.8.0-beta.1-Windows-x64
+          sha256sum Anvil-Localization-Studio-0.8.0-beta.1-Windows-x64.zip > Anvil-Localization-Studio-0.8.0-beta.1-Windows-SHA256SUMS.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: Anvil-Windows-x64-beta
@@ -132,5 +136,7 @@ jobs:
             dist/*.zip
             dist/*SHA256SUMS.txt
             build/Testing/Temporary/LastTest.log
+            build/real-model*.txt
+            build/real-model*.json
           if-no-files-found: error
           compression-level: 0

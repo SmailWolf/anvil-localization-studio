@@ -13,6 +13,7 @@ struct LocalModelSettings {
     bool cuda = true;
     int threads = 4;
     QString cacheFile = {};
+    QString sourceLanguage = "en", targetLanguage = "uk";
 };
 // Owns one loopback-only llama.cpp process for a batch, then releases model memory.
 class TranslationJob final : public QThread {

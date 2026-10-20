@@ -135,6 +135,9 @@ QString restoreTranslation(const QString &output, const ProtectedText &plan) {
 }
 void TranslationJob::run() {
     try {
+        if ((settings.sourceLanguage != "en" && settings.sourceLanguage != "en-US") ||
+            (settings.targetLanguage != "uk" && settings.targetLanguage != "be"))
+            fail(QCoreApplication::translate("Anvil", "Оберіть English → Українська або Беларуская у мовах проєкту."));
         QFile model(settings.model);
         if (!model.open(QIODevice::ReadOnly) || model.read(4) != "GGUF") fail(QCoreApplication::translate("Anvil", "Оберіть файл TranslateGemma GGUF"));
         model.close();
@@ -175,7 +178,7 @@ void TranslationJob::run() {
         for (const auto &term:glossary) terms.append(QJsonObject{{"source",term.source},{"target",term.target}});
         const auto identity=QJsonDocument(QJsonObject{{"model",modelInfo.canonicalFilePath()},
             {"bytes",QString::number(modelInfo.size())},{"mtime",QString::number(modelInfo.lastModified().toMSecsSinceEpoch())},
-            {"glossary",terms},{"format","anvil-en-uk-markers-v2"}}).toJson(QJsonDocument::Compact);
+            {"glossary",terms},{"sourceLanguage","en"},{"targetLanguage",settings.targetLanguage},{"format","anvil-language-markers-v3"}}).toJson(QJsonDocument::Compact);
         if (!QFileInfo(settings.server).isExecutable()) fail(QCoreApplication::translate("Anvil", "Не знайдено виконуваний llama-server"));
         QTcpServer reservation;
         if (!reservation.listen(QHostAddress::LocalHost, 0)) fail(QCoreApplication::translate("Anvil", "Не вдалося вибрати локальний порт"));
@@ -259,7 +262,7 @@ void TranslationJob::run() {
                 const auto reply = request("/v1/chat/completions", {
                     {"model", "anvil-translategemma"},
                     {"messages", QJsonArray{QJsonObject{{"role","user"},{"content",plan.masked}}}},
-                    {"chat_template_kwargs", QJsonObject{{"source_lang_code","en"},{"target_lang_code","uk"}}},
+                    {"chat_template_kwargs", QJsonObject{{"source_lang_code","en"},{"target_lang_code",settings.targetLanguage}}},
                     {"temperature",0.0}, {"seed",0}, {"max_tokens",4096}, {"stream",false}}, 180000);
                 const auto choices = reply.value("choices").toArray();
                 if (choices.size()!=1 || choices[0].toObject().value("finish_reason").toString()!="stop")

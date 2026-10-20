@@ -1,4 +1,4 @@
-# Build · 0.7.0-beta.2
+# Build · 0.8.0-beta.1
 
 ## Arch Linux
 
@@ -47,3 +47,6 @@ Deploy the extractor/packager/helper executables and plugins beside the applicat
 - `--smoke-test`: briefly start and exit; for headless tests use `QT_QPA_PLATFORM=offscreen`.
 
 The GUI language setting is applied on the next launch. Translating the interface does not translate user project content.
+
+
+0.8 beta: English → Ukrainian (`uk`) and Belarusian (`be`) projects are supported. Keep one target language per project. Font kit preparation for both alphabets is separate from archive packaging; native game font rendering remains unverified. See [font guide](FONTS.md).

@@ -6,3 +6,5 @@ LZO2: Copyright (C) 1996-2017 Markus Franz Xaver Johannes Oberhumer, GPL-2.0-or-
 Qt: The Qt Company and other contributors, available under LGPL/GPL/commercial terms; use your licensed system Qt installation.
 Game text projects and game-owned DLLs are not part of the program license. No game DLLs or full game archives are included.
 Anvil UA Condensed / Roboto Condensed fonts, when supplied separately, retain SIL OFL 1.1.
+
+Bundled Noto Sans Regular: Copyright 2022 The Noto Project Authors. SIL Open Font License 1.1; see assets/fonts/OFL.txt (also embedded in the application and exported with Noto kits). Original TTF redistributed unmodified.

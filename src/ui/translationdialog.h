@@ -10,12 +10,13 @@ class QPushButton;
 class QLabel;
 class TranslationDialog final : public QDialog {
   public:
-    TranslationDialog(const QVector<anvil::Entry> &entries, const QVector<anvil::Term> &glossary, QWidget *parent);
+    TranslationDialog(const QVector<anvil::Entry> &entries, const QVector<anvil::Term> &glossary, QWidget *parent, const QString &targetLanguage = "uk");
     QMap<QString, QString> acceptedTranslations() const;
   protected:
     void closeEvent(QCloseEvent *event) override;
     void reject() override;
   private:
+    QString targetLanguage_;
     QVector<anvil::Entry> entries_;
     QVector<anvil::Term> glossary_;
     QVector<int> jobRows_;

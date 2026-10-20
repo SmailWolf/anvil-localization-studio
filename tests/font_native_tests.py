@@ -4,7 +4,7 @@ import struct
 import sys
 import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from compile_gfof_font import Glyph, decode, encode
+from compile_gfof_font import Glyph, decode, encode, required_characters
 
 def fixture():
     header = bytearray(44)
@@ -15,6 +15,13 @@ def fixture():
                                   Glyph(0x0406, (8., 0., 0., 1., 2., 1., 2.), bytes([127,255]))])
 
 class NativeFontTests(unittest.TestCase):
+    def test_language_coverage(self):
+        both = required_characters()
+        self.assertTrue(set(map(ord, "ҐґЄєІіЇїЁёЎў’ʼ")) <= both)
+        self.assertNotIn(ord("Ў"), required_characters("uk"))
+        self.assertNotIn(ord("Ґ"), required_characters("be"))
+        with self.assertRaises(ValueError): required_characters("ru")
+
     def test_unicode_and_exact_roundtrip(self):
         original = fixture()
         header, glyphs = decode(original)

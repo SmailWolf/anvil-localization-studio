@@ -17,11 +17,16 @@ using namespace anvil::test;
 class PackageTests:public QObject {
     Q_OBJECT
   private slots:
-    void roundTripBothGames_data(){QTest::addColumn<bool>("wild");QTest::newRow("breakpoint")<<false;QTest::newRow("wildlands")<<true;}
+    void roundTripBothGames_data(){
+        QTest::addColumn<bool>("wild");QTest::addColumn<QString>("target");
+        QTest::newRow("breakpoint-uk")<<false<<QString("uk");QTest::newRow("wildlands-uk")<<true<<QString("uk");
+        QTest::newRow("breakpoint-be")<<false<<QString("be");QTest::newRow("wildlands-be")<<true<<QString("be");
+    }
     void roundTripBothGames(){
-        QFETCH(bool,wild);QTemporaryDir temp;QVERIFY(temp.isValid());const auto root=temp.filePath("game");game(root,wild);
+        QFETCH(QString,target);QFETCH(bool,wild);QTemporaryDir temp;QVERIFY(temp.isValid());const auto root=temp.filePath("game");game(root,wild);
         anvil::packaging::Options options;options.gameDirectory=root;options.outputDirectory=temp.filePath("package");
-        anvil::packaging::pack(project(wild),options);
+        auto doc=project(wild);doc.targetLanguage=target;if(target=="be")doc.entries[0].translation="Налады";
+        anvil::packaging::pack(doc,options);
         QCOMPARE(anvil::readFile(root+"/DataPC.forge"),forge(wild));QCOMPARE(anvil::readFile(root+"/DataPC_patch_01.forge"),forge(wild));
         QVERIFY(!QFile::exists(options.outputDirectory+"/INCOMPLETE.txt"));
         QFile copy(options.outputDirectory+"/archives/DataPC_patch_01.forge");QVERIFY(copy.open(QIODevice::ReadOnly));
@@ -31,10 +36,10 @@ class PackageTests:public QObject {
         else{const auto d=anvil::breakpoint::parseContainer(cooked);for(qsizetype i=0;i<d.blocks.size();++i)(i<d.metadataBlocks?metadata:files)+=d.blocks[i].bytes;}
         const auto native=anvil::breakpoint::unwrapResource(metadata,files,12345,"LocalizationPackage_English(US)");
         const auto after=wild?anvil::wildlands::decodeLocalization(native):anvil::breakpoint::decodeLocalization(native);
-        QCOMPARE(after.entries[0].source,QString("Налаштування"));QCOMPARE(after.entries[1].source,project(wild).entries[1].source);
+        QCOMPARE(after.entries[0].source,doc.entries[0].translation);QCOMPARE(after.entries[1].source,project(wild).entries[1].source);
         QVERIFY(copy.seek(1166));QCOMPARE(copy.read(8),QByteArray("OPAQUE!!"));
         const auto manifest=QJsonDocument::fromJson(anvil::readFile(options.outputDirectory+"/manifest.json")).object();
-        QCOMPARE(manifest.value("translatedStrings").toInt(),1);QCOMPARE(manifest.value("inGameTested").toBool(),false);
+        QCOMPARE(manifest.value("targetLanguage").toString(),target);QCOMPARE(manifest.value("translatedStrings").toInt(),1);QCOMPARE(manifest.value("inGameTested").toBool(),false);
         auto source=forge(wild);source[source.size()-1]='x';write(root+"/DataPC_patch_01.forge",source);
         auto rebuild=options;rebuild.outputDirectory=temp.filePath("wrong-source");
         QVERIFY_EXCEPTION_THROWN(anvil::packaging::assemble(options.outputDirectory,rebuild),std::runtime_error);

@@ -1,6 +1,6 @@
 """Experimental GFOF bitmap-font compiler; never installs into a game.
 
-Requires Pillow, numpy and scipy for compilation. The bounded codec itself uses
+Requires Pillow, numpy, scipy and fontTools for compilation. The bounded codec itself uses
 only the standard library. The donor must be a separately extracted GFOF blob,
 not a forge or a PHXFD wrapper. Engine compatibility needs a separate game test.
 """
@@ -14,6 +14,13 @@ from pathlib import Path
 import struct
 
 UKRAINIAN = "АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзиіїйклмнопрстуфхцчшщьюя"
+BELARUSIAN = "АБВГДЕЁЖЗІЙКЛМНОПРСТУЎФХЦЧШЫЬЭЮЯабвгдеёжзійклмнопрстуўфхцчшыьэюя"
+APOSTROPHES = "’ʼ'"
+def required_characters(language="both"):
+    alphabets = {"uk": UKRAINIAN, "be": BELARUSIAN, "both": UKRAINIAN + BELARUSIAN}
+    if language not in alphabets:
+        raise ValueError("Choose uk, be or both")
+    return set(map(ord, alphabets[language] + APOSTROPHES)) | set(range(32, 127))
 RECORD = struct.Struct("<I7fI")
 MAX_BYTES = 16 * 1024 * 1024
 
@@ -73,7 +80,7 @@ def encode(header: bytes, glyphs: list[Glyph]) -> bytes:
     decode(blob)
     return blob
 
-def compile_font(font_path: Path, donor_blob: bytes, pixel_size=50, spread=5.0, scale=4):
+def compile_font(font_path: Path, donor_blob: bytes, pixel_size=50, spread=5.0, scale=4, language="both"):
     from PIL import ImageFont
     import numpy as np
     from scipy.ndimage import distance_transform_edt
@@ -84,7 +91,7 @@ def compile_font(font_path: Path, donor_blob: bytes, pixel_size=50, spread=5.0, 
     if not 20 <= pixel_size <= 100 or not 1 <= spread <= 16 or not 1 <= scale <= 8:
         raise ValueError("Invalid rasterization parameters")
     cmap = TTFont(font_path).getBestCmap()
-    required = set(map(ord, UKRAINIAN)) | set(range(32, 127))
+    required = required_characters(language)
     missing = sorted(cp for cp in required if cp not in cmap or cmap[cp] == ".notdef")
     if missing:
         raise ValueError(f"Font lacks required characters: {missing}")
@@ -121,7 +128,7 @@ def compile_font(font_path: Path, donor_blob: bytes, pixel_size=50, spread=5.0, 
     blob = encode(header, output)
     _, checked = decode(blob)
     assert {g.codepoint for g in checked} >= required
-    return blob, {"glyph_count": len(checked), "ukrainian_characters_verified": len(set(UKRAINIAN)),
+    return blob, {"glyph_count": len(checked), "languages": ["uk", "be"] if language == "both" else [language], "required_characters_verified": len(required),
                   "legacy_glyphs_preserved": inherited, "pixel_size": pixel_size,
                   "sdf_spread": spread, "supersampling": scale,
                   "donor_roundtrip_exact": True, "generated_roundtrip_exact": encode(*decode(blob)) == blob,
@@ -132,11 +139,16 @@ def main():
     parser.add_argument("--font", required=True, type=Path)
     parser.add_argument("--donor", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument("--language", choices=["uk", "be", "both"], default="both")
     args = parser.parse_args()
     # A new working directory only; no game discovery or in-place replacement.
     if args.output_dir.exists():
         raise SystemExit("Output directory already exists")
-    blob, report = compile_font(args.font, args.donor.read_bytes())
+    # Resolve existing ancestors, including symlinks; reject game installations.
+    for parent in [args.output_dir.resolve(), *args.output_dir.resolve().parents]:
+        if any((parent / name).exists() for name in ("GRB.exe", "GRW.exe", "DataPC.forge")):
+            raise SystemExit("Output must be outside a game directory")
+    blob, report = compile_font(args.font, args.donor.read_bytes(), language=args.language)
     args.output_dir.mkdir()
     (args.output_dir / "font.gfof").write_bytes(blob)
     report.update({"font": args.font.name, "sha256": hashlib.sha256(blob).hexdigest(),

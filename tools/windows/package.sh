@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run in the MSYS2 UCRT64 shell after native Windows builds and CTest.
 set -euo pipefail
-stage="dist/Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64"
+stage="dist/Anvil-Localization-Studio-0.8.0-beta.1-Windows-x64"
 mkdir -p "$stage"/{bin,plugins,engine/cpu,docs,third-party}
 for name in anvil-studio anvil-extract-wildlands anvil-extract-breakpoint anvil-pack-translation anvil-oodle-helper; do
     cp "build/$name.exe" "$stage/bin/"

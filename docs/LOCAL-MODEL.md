@@ -1,4 +1,4 @@
-# Local translation · 0.7.0-beta.2
+# Local translation · 0.8.0-beta.1
 
 The application uses TranslateGemma 4B Q4_K_M GGUF with a separately owned llama.cpp `llama-server` process. The source distribution does not include the engine or weights; the Linux bundle includes CPU/CUDA engines with MIT notices. No AION 2 installation is required.
 
@@ -25,3 +25,6 @@ Exact source duplicates share a request while preserving every target ID. Placeh
 Optional JSONL cache keys include source, model identity, glossary and processing format. A QLockFile protects the cache; bounded reads reject malformed/oversized records and all recovered output is revalidated. Manual edits in a project do not alter cached model responses.
 
 CPU inference was verified on Linux and in the native Windows beta CI using this exact model with synthetic Settings/Main menu/Hello {name}/Press [M] strings. The Windows job downloaded and SHA-256-verified the full GGUF into temporary CI storage, then ran both real-model and GUI preview/apply tests. Weights are excluded from artifacts. Downloading was also tested with synthetic network fixtures (including corruption/cancellation) and a live HTTPS byte range. The Windows package includes CPU only; CUDA remains unverified.
+
+
+0.8 beta: English → Ukrainian (`uk`) and Belarusian (`be`) projects are supported. Keep one target language per project. Font kit preparation for both alphabets is separate from archive packaging; native game font rendering remains unverified. See [font guide](FONTS.md).

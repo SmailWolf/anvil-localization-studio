@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "mainwindow.h"
 #include "translationdialog.h"
+#include "fontdialog.h"
 #include "modeldownloaddialog.h"
 #include <QAction>
 #include <QApplication>
@@ -104,8 +105,8 @@ void headers(QStandardItemModel &m, const QStringList &labels) { m.setHorizontal
 } // namespace
 MainWindow::MainWindow() : session_(QUuid::createUuid().toString(QUuid::WithoutBraces)) {
     resize(1250, 780);
-    setWindowTitle("Anvil Localization Studio — 0.7.0-beta.2");
-    headers(entries_, {"ID", QCoreApplication::translate("Anvil", "Оригінал"), QCoreApplication::translate("Anvil", "Український переклад"), QCoreApplication::translate("Anvil", "Контекст"), QCoreApplication::translate("Anvil", "Статус")});
+    setWindowTitle("Anvil Localization Studio — 0.8.0-beta.1");
+    headers(entries_, {"ID", QCoreApplication::translate("Anvil", "Оригінал"), QCoreApplication::translate("Anvil", "Переклад"), QCoreApplication::translate("Anvil", "Контекст"), QCoreApplication::translate("Anvil", "Статус")});
     headers(glossary_, {QCoreApplication::translate("Anvil", "Термін оригіналу"), QCoreApplication::translate("Anvil", "Відповідник"), QCoreApplication::translate("Anvil", "Примітка")});
     filter_.setSourceModel(&entries_);
     filter_.setFilterKeyColumn(-1);
@@ -191,6 +192,7 @@ MainWindow::MainWindow() : session_(QUuid::createUuid().toString(QUuid::WithoutB
     addAction(file, QCoreApplication::translate("Anvil", "Експортувати CSV…"), {}, [this] { exportCsv(); }, true);
     addAction(file, QCoreApplication::translate("Anvil", "Відновити автокопію…"), {}, [this] { recover(); }, false);
     addAction(file, QCoreApplication::translate("Anvil", "Мови проєкту…"), {}, [this] { editLanguages(); }, false);
+    addAction(file, QCoreApplication::translate("Anvil", "Шрифти — Українська + Беларуская…"), {}, [this] { FontDialog dialog(this);dialog.exec(); }, false);
     addAction(file, QCoreApplication::translate("Anvil", "Закрити"), QKeySequence::Quit, [this] { close(); }, false);
     auto *edit = menuBar()->addMenu(QCoreApplication::translate("Anvil", "Редагування"));
     addAction(
@@ -400,7 +402,7 @@ void MainWindow::updateSummary() {
         reviewed += s == "reviewed";
     }
     setWindowTitle(
-        QString("%1%2 — Anvil Localization Studio 0.7.0-beta.2")
+        QString("%1%2 — Anvil Localization Studio 0.8.0-beta.1")
             .arg(dirty_ ? "*" : "", path_.isEmpty() ? QCoreApplication::translate("Anvil", "Новий проєкт") : QFileInfo(path_).fileName()));
     statusBar()->showMessage(QString(QCoreApplication::translate("Anvil", "Рядків: %1 | Перекладено: %2 | Перевірено: %3 | %4 → %5"))
                                  .arg(entries_.rowCount())
@@ -655,7 +657,12 @@ void MainWindow::editLanguages() {
     QDialog dialog(this);
     dialog.setWindowTitle(QCoreApplication::translate("Anvil", "Мови проєкту"));
     QFormLayout layout(&dialog);
-    QLineEdit source(metadata_.sourceLanguage), target(metadata_.targetLanguage);
+    QLineEdit source(metadata_.sourceLanguage);
+    QComboBox target; target.setObjectName("projectTargetLanguage");
+    target.addItem(QCoreApplication::translate("Anvil", "Українська"), "uk");
+    target.addItem("Беларуская", "be");
+    if (target.findData(metadata_.targetLanguage)<0) target.addItem(metadata_.targetLanguage,metadata_.targetLanguage);
+    target.setCurrentIndex(target.findData(metadata_.targetLanguage));
     layout.addRow(QCoreApplication::translate("Anvil", "Мова оригіналу"), &source);
     layout.addRow(QCoreApplication::translate("Anvil", "Мова перекладу"), &target);
     QDialogButtonBox buttons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -663,12 +670,19 @@ void MainWindow::editLanguages() {
     connect(&buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(&buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     if (dialog.exec() == QDialog::Accepted) {
-        if (source.text().trimmed().isEmpty() || target.text().trimmed().isEmpty()) {
+        if (source.text().trimmed().isEmpty() || target.currentData().toString().isEmpty()) {
             error(QCoreApplication::translate("Anvil", "Мови не можуть бути порожніми."));
             return;
         }
+        if (target.currentData().toString()!=metadata_.targetLanguage) {
+            const auto doc=snapshot();
+            if (!doc.glossary.isEmpty() || std::any_of(doc.entries.begin(),doc.entries.end(),[](const auto &e){return !e.translation.isEmpty();})) {
+                error(QCoreApplication::translate("Anvil", "У проєкті вже є переклади або глосарій. Для іншої мови створіть окремий проєкт з оригінальних текстів: переклади не можна просто перейменувати."));
+                return;
+            }
+        }
         metadata_.sourceLanguage = source.text().trimmed();
-        metadata_.targetLanguage = target.text().trimmed();
+        metadata_.targetLanguage = target.currentData().toString();
         markDirty();
     }
 }
@@ -716,8 +730,8 @@ void MainWindow::translateSelected(bool allUntranslated) {
     commitEditor();
     try {
         const auto document = snapshot();
-        if (!(document.sourceLanguage == "en" || document.sourceLanguage == "en-US") || document.targetLanguage != "uk")
-            throw std::runtime_error(QCoreApplication::translate("Anvil", "Локальний переклад поки налаштовано лише для English → Українська").toStdString());
+        if (!(document.sourceLanguage == "en" || document.sourceLanguage == "en-US") || (document.targetLanguage != "uk" && document.targetLanguage != "be"))
+            throw std::runtime_error(QCoreApplication::translate("Anvil", "Оберіть English → Українська або Беларуская у мовах проєкту.").toStdString());
         QSet<int> rows;
         if (allUntranslated) {
             for (qsizetype r=0;r<document.entries.size();++r)
@@ -734,7 +748,7 @@ void MainWindow::translateSelected(bool allUntranslated) {
         auto ordered = rows.values(); std::sort(ordered.begin(), ordered.end());
         QVector<anvil::Entry> selected;
         for (int row : ordered) selected.append(document.entries.at(row));
-        TranslationDialog dialog(selected, document.glossary, this);
+        TranslationDialog dialog(selected, document.glossary, this, document.targetLanguage);
         if (dialog.exec() != QDialog::Accepted) return;
         const auto accepted = dialog.acceptedTranslations();
         int first=-1,last=-1;

@@ -86,11 +86,18 @@ class TranslationTests final : public QObject {
         fresh.game="breakpoint";QVERIFY_EXCEPTION_THROWN(anvil::mergeUpdated(old,fresh),std::runtime_error);
         fresh.game=old.game;fresh.sourceLanguage="ru";QVERIFY_EXCEPTION_THROWN(anvil::mergeUpdated(old,fresh),std::runtime_error);
     }
+    void realModel_data() {
+        QTest::addColumn<QString>("target");
+        QTest::newRow("uk") << QString("uk");
+        QTest::newRow("be") << QString("be");
+    }
     void realModel() {
+        QFETCH(QString,target);
         const auto model=qEnvironmentVariable("ANVIL_TRANSLATION_MODEL"), server=qEnvironmentVariable("ANVIL_TRANSLATION_SERVER");
         if(model.isEmpty()||server.isEmpty()) QSKIP("Optional test requires owned TranslateGemma GGUF and llama-server");
         anvil::TranslationJob job;
         job.settings={server,model,qEnvironmentVariable("ANVIL_TRANSLATION_CUDA")=="1",4};
+        job.settings.targetLanguage=target;
         QTemporaryDir cache;
         QVERIFY(cache.isValid());
         job.settings.cacheFile=cache.filePath("progress.jsonl");
@@ -111,6 +118,10 @@ class TranslationTests final : public QObject {
             QVERIFY(QRegularExpression("[А-Яа-яІіЇїЄєҐґ]").match(item[1].toString()).hasMatch());
             outputs.append(QJsonObject{{"source",job.entries[item[0].toInt()].source},{"translation",item[1].toString()}});
         }
+        if(target=="be") {
+            QVERIFY2(result[0][1].toString()!=QString("Налаштування"),"Belarusian request returned Ukrainian Settings");
+            QVERIFY2(result[1][1].toString()!=QString("Головне меню"),"Belarusian request returned Ukrainian Main menu");
+        }
         QCOMPARE(result[2][1].toString().count("{name}"),1);QCOMPARE(result[3][1].toString().count("[M]"),1);
         QVERIFY(QFileInfo::exists(job.settings.cacheFile));
         const auto firstCacheBytes=QFileInfo(job.settings.cacheFile).size();
@@ -122,8 +133,20 @@ class TranslationTests final : public QObject {
         QVERIFY(resumed);
         QCOMPARE(failed.size(),0);QCOMPARE(result.size(),4);
         QCOMPARE(QFileInfo(job.settings.cacheFile).size(),firstCacheBytes+1);
+        if(target=="uk") {
+            // Same model, source and journal: changing target must force a new result.
+            const auto previous=QFileInfo(job.settings.cacheFile).size();
+            job.settings.targetLanguage="be";job.entries.resize(1);
+            result.clear();failed.clear();ended.clear();job.start();
+            const bool otherLanguage=ended.wait(240000);
+            if(!otherLanguage){job.requestInterruption();job.wait(10000);}
+            QVERIFY(otherLanguage);QCOMPARE(failed.size(),0);QCOMPARE(result.size(),1);
+            QVERIFY(result[0][2].toString().isEmpty());
+            QVERIFY(result[0][1].toString()!=outputs[0].toObject()["translation"].toString());
+            QVERIFY(QFileInfo(job.settings.cacheFile).size()>previous+1);
+        }
         const auto output=qEnvironmentVariable("ANVIL_TRANSLATION_REPORT");
-        if(!output.isEmpty()){QFile file(output);QVERIFY(file.open(QIODevice::WriteOnly));file.write(QJsonDocument(outputs).toJson());}
+        if(!output.isEmpty()){QFile file(output+"."+target+".json");QVERIFY(file.open(QIODevice::WriteOnly));file.write(QJsonDocument(outputs).toJson());}
     }
 };
 QTEST_GUILESS_MAIN(TranslationTests)

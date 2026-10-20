@@ -1,4 +1,4 @@
-# User guide · Anvil Localization Studio 0.7.0-beta.2
+# User guide · Anvil Localization Studio 0.8.0-beta.1
 
 **Beta software.** No game archives, extracted game text, completed game translations, patches or model weights are bundled. Supply your own game installation. All normal editor, extraction and packaging operations keep output outside the installed game.
 
@@ -32,7 +32,7 @@ Breakpoint requires the user's own `oo2core_7_win64.dll` from the game. On Linux
 
 ## 4. Edit and translate
 
-Edit the **Ukrainian translation** column. **Ctrl+Enter** confirms an edited cell; Enter inserts a line break. Statuses are **To translate**, **Translated**, and **Reviewed**. Mark rows Reviewed after manual proofreading. The Glossary tab stores source terms and their target equivalents.
+Edit the **Translation** column. **Ctrl+Enter** confirms an edited cell; Enter inserts a line break. Statuses are **To translate**, **Translated**, and **Reviewed**. Mark rows Reviewed after manual proofreading. The Glossary tab stores source terms and their target equivalents.
 
 Use **Translate all untranslated…** for the whole project. There is no 500-row limit, and the search filter does not restrict this command. For a subset, select rows with Ctrl/Shift and choose **Translate selected rows…**.
 
@@ -68,3 +68,11 @@ Output resources are decoded again and checked. **This does not establish a play
 - **Squares instead of Ukrainian letters in game:** translating strings does not supply missing font glyphs. Automatic font replacement is not part of this beta.
 
 For bug reports, include app version, OS, game, action and error message. Do not upload game archives, proprietary DLLs, complete extracted text databases or private information to public Issues.
+
+## Ukrainian and Belarusian projects and fonts (0.8 beta)
+
+After extraction, choose **Project → Project languages…**: source `en`/`en-US`, target Ukrainian (`uk`) or Belarusian (`be`). Save separate JSON projects for each target. An existing translated project or glossary cannot simply be relabeled; start the other language from untranslated source records. Model caches include the target language. Both targets use the same local model; proofread all machine output.
+
+Choose **Project → Fonts — Ukrainian + Belarusian…**. The bundled Noto Sans and both alphabets are selected by default. Coverage checks use the font's own glyphs without system fallback: ASCII, apostrophes, Ukrainian Ґ Є І Ї and Belarusian Ё І Ў, including lowercase. Export to a new directory outside the game. The kit includes a source TTF, OFL license and validation report. Custom TTF/OTF fonts are supported; missing coverage disables export.
+
+A separately decoded raw GFOF v3.3 donor optionally enables experimental SDF compilation. Glyph size and spread need matching to the original asset. A `.forge` file is not a donor. This produces a raw font resource, not a playable mod. Font insertion into archives and in-game rendering have not been verified; Wildlands native font containers are unverified. The translation packer does not insert these fonts. See [FONTS.md](FONTS.md).

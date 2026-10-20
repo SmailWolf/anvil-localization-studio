@@ -69,3 +69,6 @@ Wildlands отримує CFD v1/LZO1X із 16-бітовими розмірам�
 Успіх пакування підтверджує структуру і відповідність текстів, **не працездатність у рушії**. Копії не встановлюються автоматично. Перед самостійним ігровим тестом потрібні повні резервні копії всіх файлів, які планується замінити, і можливість їх відновити. Не використовуйте незавершені outputs з INCOMPLETE.
 
 Український текст може відображатися квадратами без сумісного шрифту. Окремий старий шрифтовий тест v3 стосується лише конкретної версії Breakpoint; це не шрифт Wildlands і не гарантія сумісності з оновленими архівами. Пакування не замінює font-ресурси та не перераховує UMAC — ці межі також записані у manifest.json.
+
+
+0.8 beta: English → Ukrainian (`uk`) and Belarusian (`be`) projects are supported. Keep one target language per project. Font kit preparation for both alphabets is separate from archive packaging; native game font rendering remains unverified. See [font guide](FONTS.md).
