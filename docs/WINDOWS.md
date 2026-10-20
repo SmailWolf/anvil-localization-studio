@@ -1,6 +1,6 @@
 # Windows x64 · 0.7.0-beta.2
 
-The Windows package is built natively on GitHub Actions using Windows Server 2022, MSYS2 UCRT64, Qt 6 and GCC. It targets Windows 10/11 x64. The package contains the application, readers, packager, decompression helper, Qt platform/TLS plugins, LZO2 and compiler runtime DLLs. No separate Qt SDK, MSYS2 or Wine installation is needed to run it.
+The Windows package is built natively on GitHub Actions using Windows Server 2022, MSYS2 UCRT64, Qt 6 and GCC. It targets Windows 10/11 x64. The bundled CPU engine requires SSE4.2 and BMI2 instructions. The package contains the application, readers, packager, decompression helper, Qt platform/TLS plugins, LZO2 and compiler runtime DLLs. No separate Qt SDK, MSYS2 or Wine installation is needed to run it.
 
 ## Run
 

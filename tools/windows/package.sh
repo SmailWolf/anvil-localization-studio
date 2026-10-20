@@ -23,6 +23,9 @@ qt_plugins=$("$qtpaths" --query QT_INSTALL_PLUGINS | tr -d '\r')
 qt_plugins=$(cygpath -u "$qt_plugins")
 mkdir -p "$stage/bin/tls"
 cp "$qt_plugins/tls/qschannelbackend.dll" "$stage/bin/tls/"
+# windeployqt normally ships qwindows only. Offscreen is required for the
+# deployment smoke test; ship it explicitly rather than loading the SDK copy.
+cp "$qt_plugins/platforms/qoffscreen.dll" "$stage/bin/platforms/"
 # A relocatable Qt configuration prevents falling back to the build-machine paths.
 printf '[Paths]\nPrefix=.\nPlugins=.\nTranslations=translations\n' > "$stage/bin/qt.conf"
 # Recursively deploy non-system DLL imports for every executable and plugin.
