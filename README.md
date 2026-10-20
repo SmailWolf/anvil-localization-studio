@@ -8,7 +8,9 @@
 
 ## Download and start
 
-Get the Linux ZIP from [Releases](https://github.com/SmailWolf/anvil-localization-studio/releases). Extract the entire archive and run `start-studio.sh`. Keep the `bin`, `engine`, `plugins`, and `docs` folders together. The Linux package requires compatible system Qt 6 libraries; see the build guide. Windows builds are not provided or runtime tested yet.
+Get the Windows x64 ZIP from [Releases](https://github.com/SmailWolf/anvil-localization-studio/releases). Extract the entire archive and open **Start-Anvil-Studio.cmd** (or `bin/anvil-studio.exe`). Qt/LZO/compiler runtime libraries and a CPU translation engine are included. Windows 10/11 x64; no Qt SDK, MSYS2 or Wine installation is needed. [Windows guide](docs/WINDOWS.md).
+
+The [previous Linux beta](https://github.com/SmailWolf/anvil-localization-studio/releases/tag/v0.7.0-beta.1) remains available. Run `start-studio.sh` and keep its folders together; compatible system Qt libraries are required.
 
 Select **Мова / Language → Українська / English**, save your project, then restart the app. Interface language does not change the project's source or target language.
 
@@ -25,7 +27,7 @@ Choose **Translation → Download model…**. TranslateGemma 4B Q4_K_M is downlo
 
 This is **not general `.forge` support**. The readers cover the observed Wildlands v27 / CFD v1 LZO and Breakpoint LocalizationPackage / CFD v3 variants described in the format documentation. Future game updates may need reader changes.
 
-Packaging has been checked by decoding its output and comparing resources. **Newly packaged archives have not been verified to run in either game.** UMAC is not recalculated and Ukrainian font coverage is not added. A structurally valid package is not a confirmed playable mod. CUDA is included in the Linux package but has not been runtime tested for this release. English → Ukrainian is the only configured model translation direction.
+Packaging has been checked by decoding its output and comparing resources. **Newly packaged archives have not been verified to run in either game.** UMAC is not recalculated and Ukrainian font coverage is not added. A structurally valid package is not a confirmed playable mod. The Windows package includes CPU inference only. CUDA is included in the earlier Linux package but has not been runtime tested for this release. English → Ukrainian is the only configured model translation direction.
 
 ## Build and tests
 

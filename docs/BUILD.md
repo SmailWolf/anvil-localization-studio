@@ -22,7 +22,11 @@ The source tree does not contain llama.cpp binaries. Build a compatible llama.cp
 
 Previously verified CPU engine source revision: `bd4eeaa047006cb1fe71999fbd11134b5836e167` from [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp). When distributing engine binaries, retain the matching license and corresponding source reference.
 
-## Windows (source build; not runtime verified)
+## Windows (native MSYS2 UCRT64 build)
+
+For the Windows ZIP and reproducible native build use [WINDOWS.md](WINDOWS.md) and `.github/workflows/windows.yml`. It builds the app, helper and CPU engine, deploys dependencies and tests the portable folder with a clean PATH.
+
+### Alternative MSVC source build (not runtime verified)
 
 Use Visual Studio 2022 with C++20, CMake, Qt 6.5+ MSVC x64 (including Network, Test, LinguistTools) and an x64 LZO2 installation. Use matching compiler architectures throughout.
 
@@ -33,7 +37,7 @@ ctest --test-dir build -C Release --output-on-failure
 windeployqt build/Release/anvil-studio.exe
 ```
 
-Deploy the extractor/packager/helper executables and plugins beside the application as required by the UI. A Windows-compatible llama-server and its libraries are needed for inference. A Windows release package has not been tested; the Linux ZIP cannot run on Windows.
+Deploy the extractor/packager/helper executables and plugins beside the application as required by the UI. A Windows-compatible llama-server and its libraries are needed for inference. The MSVC alternative is not the toolchain used for the Windows ZIP. The Linux ZIP cannot run on Windows.
 
 ## Interface and command-line options
 

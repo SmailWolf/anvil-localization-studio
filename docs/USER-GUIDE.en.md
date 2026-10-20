@@ -4,7 +4,9 @@
 
 ## 1. Start and select the interface language
 
-Extract the entire Linux ZIP into a separate folder, then run `start-studio.sh`. Keep all subfolders together. Do not install the app inside the game folder. Compatible system Qt libraries are required; see [BUILD.md](BUILD.md). A tested Windows binary package is not available yet.
+**Windows 10/11 x64:** extract the entire Windows ZIP and open **Start-Anvil-Studio.cmd** or `bin\anvil-studio.exe`. Qt/LZO/compiler DLLs and the CPU engine are bundled; no Qt SDK, MSYS2 or Wine installation is needed to run. See [WINDOWS.md](WINDOWS.md).
+
+**Linux:** the previous Linux beta remains available in Releases. Run `start-studio.sh`; compatible system Qt libraries are required. Keep all subfolders together and do not install the app inside the game folder. See [BUILD.md](BUILD.md).
 
 Choose **Мова / Language → English** or **Українська**. Save the open project and restart the application. This preference is remembered. The interface language is independent of the translation direction, which currently supports English → Ukrainian only.
 
@@ -34,7 +36,7 @@ Edit the **Ukrainian translation** column. **Ctrl+Enter** confirms an edited cel
 
 Use **Translate all untranslated…** for the whole project. There is no 500-row limit, and the search filter does not restrict this command. For a subset, select rows with Ctrl/Shift and choose **Translate selected rows…**.
 
-Check the GGUF and `llama-server` paths. The Linux package includes CPU and CUDA engines. Disable CUDA if NVIDIA acceleration is unavailable; CPU has been verified, while CUDA has not been runtime tested for this release. Source builds require a separately supplied compatible engine.
+Check the GGUF and `llama-server` paths. The Windows package includes a CPU engine. The previous Linux package includes CPU and CUDA engines. Disable CUDA if NVIDIA acceleration is unavailable; CPU has been verified, while CUDA has not been runtime tested for this release. Source builds require a separately supplied compatible engine.
 
 Click **Translate**, review the proposed output, uncheck unwanted results, then click **Apply checked**. Results do not change the project until applied. The model is loaded into memory for the batch and unloaded when it finishes or stops.
 
