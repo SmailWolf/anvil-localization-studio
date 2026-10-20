@@ -18,11 +18,11 @@ The default directory is QStandardPaths::AppLocalDataLocation/models; the select
 
 ## Inference
 
-A QThread owns one QProcess per batch, using a temporary loopback port, random API key, `--offline`, `--no-webui`, `--parallel 1`, Jinja template, context 8192, max output 4096 and temperature 0. Health and template metadata are checked before English → Ukrainian chat requests. Local inference requests do not use a proxy or redirects. The process exits when finished/stopped; Linux also sets parent-death signal.
+A QThread owns one QProcess per batch, using a temporary loopback port, random API key, `--offline`, `--no-webui`, `--parallel 1`, Jinja template, context 8192, max output 4096 and temperature 0. Health and template metadata are checked before English → Ukrainian / Belarusian chat requests. Local inference requests do not use a proxy or redirects. The process exits when finished/stopped; Linux also sets parent-death signal.
 
 Exact source duplicates share a request while preserving every target ID. Placeholders/tags are masked and validated after restoration; incomplete responses are rejected. Sources exceeding 6000 characters are rejected. Glossary matches are literal and require proofreading. Applying preview results is explicit.
 
-Optional JSONL cache keys include source, model identity, glossary and processing format. A QLockFile protects the cache; bounded reads reject malformed/oversized records and all recovered output is revalidated. Manual edits in a project do not alter cached model responses.
+Optional JSONL cache keys include source, target language, model identity, glossary and processing format. A QLockFile protects the cache; bounded reads reject malformed/oversized records and all recovered output is revalidated. Manual edits in a project do not alter cached model responses.
 
 CPU inference was verified on Linux and in the native Windows beta CI using this exact model with synthetic Settings/Main menu/Hello {name}/Press [M] strings. The Windows job downloaded and SHA-256-verified the full GGUF into temporary CI storage, then ran both real-model and GUI preview/apply tests. Weights are excluded from artifacts. Downloading was also tested with synthetic network fixtures (including corruption/cancellation) and a live HTTPS byte range. The Windows package includes CPU only; CUDA remains unverified.
 
