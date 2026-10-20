@@ -1,0 +1,8 @@
+Anvil Localization Studio: GPL-2.0-or-later. See COPYING.
+
+This distribution includes the program source in source/ (Linux bundle), or is itself the source distribution.
+Qt and LZO are dynamically linked system dependencies and retain their respective licenses.
+LZO2: Copyright (C) 1996-2017 Markus Franz Xaver Johannes Oberhumer, GPL-2.0-or-later.
+Qt: The Qt Company and other contributors, available under LGPL/GPL/commercial terms; use your licensed system Qt installation.
+Game text projects and game-owned DLLs are not part of the program license. No game DLLs or full game archives are included.
+Anvil UA Condensed / Roboto Condensed fonts, when supplied separately, retain SIL OFL 1.1.

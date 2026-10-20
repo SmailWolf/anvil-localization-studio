@@ -1,0 +1,16 @@
+build*/
+.anvil-backups/
+.anvil-wine-prefix/
+*.user
+__pycache__/
+*.pyc
+projects/
+models/
+*.gguf
+*.forge
+*.dll
+*.anvildelta
+*.als.json
+!examples/demo.als.json
+translation-progress.jsonl
+model-path.txt

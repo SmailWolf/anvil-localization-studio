@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "game": "wildlands",
+  "sourceLanguage": "en",
+  "targetLanguage": "uk",
+  "entries": [
+    {
+      "id": "demo.greeting",
+      "source": "Welcome, {player}!",
+      "translation": "Вітаємо, {player}!",
+      "context": "Вигаданий приклад; не текст гри",
+      "status": "translated"
+    },
+    {
+      "id": "demo.objective",
+      "source": "Reach the extraction point.",
+      "translation": "Дістаньтеся точки евакуації.",
+      "context": "Вигаданий приклад",
+      "status": "reviewed"
+    },
+    {
+      "id": "demo.empty",
+      "source": "Mission complete.",
+      "translation": "",
+      "context": "Вигаданий приклад",
+      "status": "todo"
+    }
+  ],
+  "glossary": [
+    {
+      "source": "extraction point",
+      "target": "точка евакуації",
+      "note": "Вигаданий демонстраційний термін"
+    }
+  ]
+}

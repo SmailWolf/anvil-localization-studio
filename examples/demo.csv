@@ -1,0 +1,4 @@
+id,source,translation,context,status
+demo.greeting,"Welcome, {player}!","Вітаємо, {player}!",Вигаданий приклад; не текст гри,translated
+demo.objective,Reach the extraction point.,Дістаньтеся точки евакуації.,Вигаданий приклад,reviewed
+demo.empty,Mission complete.,,Вигаданий приклад,todo
