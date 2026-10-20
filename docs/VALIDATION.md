@@ -1,21 +1,19 @@
 # Validation · 0.8.0-beta.1 · 2026-10-20
 
-## Current Linux checks
+## Windows x64
 
-16/16 CTest suites passed: font codec and native compilation, core/CSV/storage, both game readers/plugins, Ukrainian/Belarusian package round trips on synthetic archives, output guards, model download fixtures, translation validation and UI.
+[Native Windows build and tests](https://github.com/SmailWolf/anvil-localization-studio/actions/runs/39460011377) from code commit `33890f18aaa8d0da9f851e530c7067919c7abc37` completed successfully. All 16 CTest suites passed, including font alphabet/codec checks, Belarusian project UI, packaging for both languages, and the clean-path deployment probes. The packaged app and font dialog start with system paths only.
 
-The real pinned TranslateGemma 4B Q4_K_M model was tested on CPU for English → Ukrainian and English → Belarusian, including placeholder preservation, resuming cached results and changing target language in the same cache. This checks the workflow, not professional linguistic quality; machine output requires review.
+GitHub downloaded and SHA-256 verified the pinned TranslateGemma GGUF in temporary CI storage. The real CPU model test produced and validated results for English → Ukrainian and English → Belarusian, resumed the cache, then changed language in the same cache to confirm results stay separate. The UI preview/apply test also passed with duplicate IDs and placeholders. The model test took about 6 minutes on the Windows runner. Model output remains a draft and needs proofreading.
 
-The bundled Noto Sans covers both complete alphabets, ASCII and apostrophes without font fallback. A synthetic C++-generated GFOF was decoded and round-tripped by the independent Python codec. Donor glyphs absent from the TTF are retained. New destination / game directory / symlink guards are covered. Font UI checks include both languages, preview and enabling export only with full coverage.
+## Linux
 
-## Windows
+[Arch Linux build and tests](https://github.com/SmailWolf/anvil-localization-studio/actions/runs/39460011422) completed successfully, all 16 CTest suites passed. The same local TranslateGemma model was exercised on CPU for both targets. New Linux app and CLI smoke tests passed.
 
-The new native Windows build and all 16 suites run in the Windows x64 workflow. The release notes identify the successful run for each published binary.
-
-The previous 0.7.0-beta.2 baseline passed native build/tests, clean-PATH deployment, real CPU inference and GUI preview/apply: [baseline run](https://github.com/SmailWolf/anvil-localization-studio/actions/runs/39437800774). This is historical evidence, not a result for the new font feature.
+The bundled Noto Sans covers both full alphabets, ASCII and apostrophes without font fallback. A C++ generated GFOF test resource round-tripped through the independent Python decoder; every Ukrainian and Belarusian letter produced a non-empty SDF bitmap. The font UI was opened in English and Ukrainian, with both language selectors, preview and export. These tests validate character coverage and resource encoding, not game rendering.
 
 ## Limits and distribution
 
-No installed game files were changed. Distribution excludes game archives, extracted game text databases, completed game translations, proprietary game DLLs, game-owned donor fonts, native game patch payloads and model weights. Synthetic examples and tests are included. Noto Sans is redistributed under OFL 1.1 with its license; the application remains GPL-2.0-or-later.
+No installed game files were changed. Distribution excludes game archives, extracted game text databases, completed game translations, proprietary game DLLs, game-owned donor fonts, native game patch payloads and model weights. Synthetic examples and tests remain included. Noto Sans is redistributed under SIL OFL 1.1 with its license; the application remains GPL-2.0-or-later.
 
-Font coverage and codec round trips do not confirm game rendering. Newly packaged archives have not been verified to run in either game; UMAC is not recalculated. The translation packer does not insert font resources. Wildlands native font containers remain unverified. Automated Windows tests are not a full human desktop/game test; CUDA is not runtime verified. See [FONTS.md](FONTS.md).
+Font coverage and round trips do not confirm game rendering. Newly packaged archives have not been verified to run in either game; UMAC is not recalculated. The packer does not insert font resources. Wildlands native font containers remain unverified. CUDA is not runtime verified.
