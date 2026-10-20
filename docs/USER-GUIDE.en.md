@@ -6,9 +6,9 @@
 
 **Windows 10/11 x64:** extract the entire Windows ZIP and open **Start-Anvil-Studio.cmd** or `bin\anvil-studio.exe`. Qt/LZO/compiler DLLs and the CPU engine are bundled; no Qt SDK, MSYS2 or Wine installation is needed to run. See [WINDOWS.md](WINDOWS.md).
 
-**Linux:** the previous Linux beta remains available in Releases. Run `start-studio.sh`; compatible system Qt libraries are required. Keep all subfolders together and do not install the app inside the game folder. See [BUILD.md](BUILD.md).
+**Linux:** the Linux ZIP is available in the same release. Run `start-studio.sh`; compatible system Qt libraries are required. Keep all subfolders together and do not install the app inside the game folder. See [BUILD.md](BUILD.md).
 
-Choose **Мова / Language → English** or **Українська**. Save the open project and restart the application. This preference is remembered. The interface language is independent of the translation direction, which currently supports English → Ukrainian only.
+Choose **Мова / Language → English** or **Українська**. Save the open project and restart the application. This preference is remembered. Set the translation target separately in **Project → Project languages…**: Ukrainian (`uk`) or Belarusian (`be`). Save one project per language.
 
 ## 2. Download the translation model
 
