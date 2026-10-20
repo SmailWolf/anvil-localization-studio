@@ -1,4 +1,4 @@
-# Local translation · 0.7.0-beta.1
+# Local translation · 0.7.0-beta.2
 
 The application uses TranslateGemma 4B Q4_K_M GGUF with a separately owned llama.cpp `llama-server` process. The source distribution does not include the engine or weights; the Linux bundle includes CPU/CUDA engines with MIT notices. No AION 2 installation is required.
 

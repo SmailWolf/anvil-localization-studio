@@ -1,0 +1,110 @@
+name: Windows x64 beta
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows.yml'
+      - 'CMakeLists.txt'
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'translations/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: ggml-org/llama.cpp
+          ref: bd4eeaa047006cb1fe71999fbd11134b5836e167
+          path: .build/llama.cpp
+          persist-credentials: false
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-tools
+            mingw-w64-ucrt-x86_64-qt6-translations
+            mingw-w64-ucrt-x86_64-lzo2
+            mingw-w64-ucrt-x86_64-python
+            git
+            zip
+      - name: Build native Windows application and helpers
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build build --parallel 2
+      - name: Windows tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure --parallel 2
+      - name: Build portable CPU translation engine
+        run: |
+          cmake -S .build/llama.cpp -B .build/llama-build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DGGML_NATIVE=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_F16C=OFF \
+            -DGGML_OPENMP=OFF -DLLAMA_OPENSSL=OFF -DLLAMA_BUILD_TESTS=OFF \
+            -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_APP=OFF -DLLAMA_BUILD_UI=OFF
+          cmake --build .build/llama-build --target llama-server --parallel 2
+      - name: Assemble Windows runtime package
+        run: bash tools/windows/package.sh
+      - name: Verify deployed package without MSYS2 on PATH
+        shell: pwsh
+        run: |
+          $stage = Join-Path $PWD 'dist/Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64'
+          $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          $env:QT_QPA_PLATFORM = 'offscreen'
+          Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
+          Remove-Item Env:QML2_IMPORT_PATH -ErrorAction SilentlyContinue
+          foreach ($lang in @('uk','en')) {
+            $p = Start-Process -FilePath "$stage/bin/anvil-studio.exe" -ArgumentList @('--ui-language',$lang,'--smoke-test') -PassThru -Wait
+            if ($p.ExitCode -ne 0) { throw "Deployed $lang GUI failed: $($p.ExitCode)" }
+          }
+          & "$stage/bin/anvil-extract-wildlands.exe" --help
+          if ($LASTEXITCODE -ne 0) { throw 'Wildlands reader deployment failed' }
+          & "$stage/bin/anvil-extract-breakpoint.exe" --help
+          if ($LASTEXITCODE -ne 0) { throw 'Breakpoint reader deployment failed' }
+          & "$stage/bin/anvil-pack-translation.exe" --help
+          if ($LASTEXITCODE -ne 0) { throw 'Packager deployment failed' }
+          & "$stage/engine/cpu/llama-server.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw 'CPU engine deployment failed' }
+      - name: Verify real CPU translation using the pinned model
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          mkdir -p .build/models
+          curl --fail --location --retry 3 --output .build/models/translategemma.gguf \
+            https://huggingface.co/mradermacher/translategemma-4b-it-GGUF/resolve/d37868f759d2f817a43d28dd80cf9f982ffa62fd/translategemma-4b-it.Q4_K_M.gguf
+          printf '%s\n' '81200d03e843d2ec1ece6eeafe7d13cb6e5211e1fcd336ade55790b683a08330  .build/models/translategemma.gguf' | sha256sum --check
+          export ANVIL_TRANSLATION_MODEL="$(cygpath -m "$PWD/.build/models/translategemma.gguf")"
+          export ANVIL_TRANSLATION_SERVER="$(cygpath -m "$PWD/dist/Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64/engine/cpu/llama-server.exe")"
+          ./build/anvil_translation_tests.exe realModel
+          ./build/anvil_ui_tests.exe realModelPreviewApply
+      - name: Archive distributable and checksums
+        run: |
+          cd dist
+          zip -q -r Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64.zip Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64
+          sha256sum Anvil-Localization-Studio-0.7.0-beta.2-Windows-x64.zip > Anvil-Localization-Studio-0.7.0-beta.2-Windows-SHA256SUMS.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Anvil-Windows-x64-beta
+          path: |
+            dist/*.zip
+            dist/*SHA256SUMS.txt
+            build/Testing/Temporary/LastTest.log
+          if-no-files-found: error
+          compression-level: 0

@@ -1,4 +1,4 @@
-# Build · 0.7.0-beta.1
+# Build · 0.7.0-beta.2
 
 ## Arch Linux
 

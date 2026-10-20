@@ -1,4 +1,4 @@
-# Validation · 0.7.0-beta.1 · 2026-10-20
+# Validation · 0.7.0-beta.2 · 2026-10-20
 
 Arch Linux x86_64; GCC 16; Qt 6.12; Release CMake build.
 

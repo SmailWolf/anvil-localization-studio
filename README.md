@@ -1,4 +1,4 @@
-# Anvil Localization Studio · 0.7.0-beta.1
+# Anvil Localization Studio · 0.7.0-beta.2
 
 **Beta software.** C++20 / Qt 6 desktop localization editor for **Ghost Recon Wildlands** and **Ghost Recon Breakpoint**. Ukrainian and English interface. Local English → Ukrainian translation with TranslateGemma 4B.
 

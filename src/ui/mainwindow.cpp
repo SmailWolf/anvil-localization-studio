@@ -104,7 +104,7 @@ void headers(QStandardItemModel &m, const QStringList &labels) { m.setHorizontal
 } // namespace
 MainWindow::MainWindow() : session_(QUuid::createUuid().toString(QUuid::WithoutBraces)) {
     resize(1250, 780);
-    setWindowTitle("Anvil Localization Studio — 0.7.0-beta.1");
+    setWindowTitle("Anvil Localization Studio — 0.7.0-beta.2");
     headers(entries_, {"ID", QCoreApplication::translate("Anvil", "Оригінал"), QCoreApplication::translate("Anvil", "Український переклад"), QCoreApplication::translate("Anvil", "Контекст"), QCoreApplication::translate("Anvil", "Статус")});
     headers(glossary_, {QCoreApplication::translate("Anvil", "Термін оригіналу"), QCoreApplication::translate("Anvil", "Відповідник"), QCoreApplication::translate("Anvil", "Примітка")});
     filter_.setSourceModel(&entries_);
@@ -400,7 +400,7 @@ void MainWindow::updateSummary() {
         reviewed += s == "reviewed";
     }
     setWindowTitle(
-        QString("%1%2 — Anvil Localization Studio 0.7.0-beta.1")
+        QString("%1%2 — Anvil Localization Studio 0.7.0-beta.2")
             .arg(dirty_ ? "*" : "", path_.isEmpty() ? QCoreApplication::translate("Anvil", "Новий проєкт") : QFileInfo(path_).fileName()));
     statusBar()->showMessage(QString(QCoreApplication::translate("Anvil", "Рядків: %1 | Перекладено: %2 | Перевірено: %3 | %4 → %5"))
                                  .arg(entries_.rowCount())

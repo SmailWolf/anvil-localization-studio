@@ -1,4 +1,4 @@
-# User guide · Anvil Localization Studio 0.7.0-beta.1
+# User guide · Anvil Localization Studio 0.7.0-beta.2
 
 **Beta software.** No game archives, extracted game text, completed game translations, patches or model weights are bundled. Supply your own game installation. All normal editor, extraction and packaging operations keep output outside the installed game.
 

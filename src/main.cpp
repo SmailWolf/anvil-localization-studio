@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("AnvilStudio");
     QCoreApplication::setApplicationName("AnvilLocalizationStudio");
-    QCoreApplication::setApplicationVersion("0.7.0-beta.1");
+    QCoreApplication::setApplicationVersion("0.7.0-beta.2");
     auto language=QSettings().value("interface/language","uk").toString();
     const int languageArg=app.arguments().indexOf("--ui-language");
     if(languageArg>=0 && languageArg+1<app.arguments().size())language=app.arguments()[languageArg+1];
