@@ -6,7 +6,9 @@
 #include <QTextStream>
 #include <stdexcept>
 int main(int argc,char **argv){
-    QCoreApplication app(argc,argv);app.setApplicationName("anvil-pack-translation");
+    QCoreApplication app(argc,argv);
+    // Helpers are called with redirected pipes by the GUI and CI on Windows.
+    qputenv("QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES", "1");app.setApplicationName("anvil-pack-translation");
     QCommandLineParser args;args.addHelpOption();
     args.setApplicationDescription("Build experimental translation packages and archive COPIES outside the game. Never installs.");
     args.addOptions({{"mode","pack or assemble","mode"},{"project","Saved .als.json translation project","file"},

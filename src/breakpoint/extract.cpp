@@ -45,6 +45,8 @@ void put32(QByteArray &bytes, quint32 n) {
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
+    // Helpers are called with redirected pipes by the GUI and CI on Windows.
+    qputenv("QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES", "1");
     app.setApplicationName("anvil-extract-breakpoint");
     app.setApplicationVersion("0.2.0");
     QCommandLineParser args;

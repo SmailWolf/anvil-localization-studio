@@ -12,6 +12,8 @@ void require(bool condition, const char *message) { if (!condition) throw std::r
 }
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
+    // Helpers are called with redirected pipes by the GUI and CI on Windows.
+    qputenv("QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES", "1");
     app.setApplicationName("anvil-extract-wildlands");
     QCommandLineParser args;
     args.setApplicationDescription("Read-only extraction of English Wildlands localization. No game writes.");

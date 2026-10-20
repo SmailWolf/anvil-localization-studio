@@ -81,22 +81,27 @@ jobs:
           $env:QT_QPA_PLATFORM = 'offscreen'
           Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
           Remove-Item Env:QML2_IMPORT_PATH -ErrorAction SilentlyContinue
-          foreach ($lang in @('uk','en')) {
-            $stdout = "$stage/bin/deploy-$lang.stdout.log"
-            $stderr = "$stage/bin/deploy-$lang.stderr.log"
-            $p = Start-Process -FilePath "$stage/bin/anvil-studio.exe" -ArgumentList @('--ui-language',$lang,'--smoke-test') -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
-            if (-not $p.WaitForExit(30000)) { $p.Kill(); Get-Content $stderr; throw "Deployed $lang GUI timed out" }
-            if ($p.ExitCode -ne 0) { Get-Content $stderr; throw "Deployed $lang GUI failed: $($p.ExitCode)" }
+          $env:QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES = '1'
+          function Test-DeployedProcess([string]$file, [string[]]$commandArgs) {
+            Write-Host "Checking: $file $commandArgs"
+            $stdout = "$file.stdout.log"
+            $stderr = "$file.stderr.log"
+            $launch = @{ FilePath=$file; PassThru=$true; RedirectStandardOutput=$stdout; RedirectStandardError=$stderr }
+            if ($commandArgs.Count -gt 0) { $launch.ArgumentList = $commandArgs }
+            $p = Start-Process @launch
+            if (-not $p.WaitForExit(30000)) { $p.Kill(); Get-Content $stderr; throw "Deployment check timed out: $file" }
+            $p.Refresh()
+            if ($p.ExitCode -ne 0) { Get-Content $stderr; throw "Deployment check failed ($($p.ExitCode)): $file" }
             Remove-Item $stdout,$stderr
+            $p.Dispose()
           }
-          & "$stage/bin/anvil-extract-wildlands.exe" --help
-          if ($LASTEXITCODE -ne 0) { throw 'Wildlands reader deployment failed' }
-          & "$stage/bin/anvil-extract-breakpoint.exe" --help
-          if ($LASTEXITCODE -ne 0) { throw 'Breakpoint reader deployment failed' }
-          & "$stage/bin/anvil-pack-translation.exe" --help
-          if ($LASTEXITCODE -ne 0) { throw 'Packager deployment failed' }
-          & "$stage/engine/cpu/llama-server.exe" --version
-          if ($LASTEXITCODE -ne 0) { throw 'CPU engine deployment failed' }
+          foreach ($lang in @('uk','en')) {
+            Test-DeployedProcess "$stage/bin/anvil-studio.exe" @('--ui-language',$lang,'--smoke-test')
+          }
+          foreach ($tool in @('anvil-extract-wildlands','anvil-extract-breakpoint','anvil-pack-translation')) {
+            Test-DeployedProcess "$stage/bin/$tool.exe" @('--help')
+          }
+          Test-DeployedProcess "$stage/engine/cpu/llama-server.exe" @('--version')
       - name: Deployment diagnostics
         if: failure()
         shell: pwsh

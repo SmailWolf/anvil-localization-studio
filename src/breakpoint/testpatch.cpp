@@ -330,6 +330,8 @@ QByteArray forge(const QByteArray &prefix, const QVector<Piece> &entries) {
 } // namespace
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
+    // Helpers are called with redirected pipes by the GUI and CI on Windows.
+    qputenv("QT_COMMAND_LINE_PARSER_NO_GUI_MESSAGE_BOXES", "1");
     app.setApplicationName("anvil-build-breakpoint-test");
     QCommandLineParser args;
     args.addHelpOption();
