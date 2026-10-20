@@ -30,3 +30,7 @@ The application has Windows version metadata and starts without a console window
 The Windows build, automated test and deployment status is recorded in the release notes and linked GitHub Actions run. A successful build does not establish game compatibility or complete human desktop QA. CUDA is not supplied or verified in this Windows beta.
 
 See [English guide](USER-GUIDE.en.md), [українська інструкція](USER-GUIDE.md), and [packaging limits](PACKAGING.md).
+
+Verified native build: [GitHub Actions run 39437800774](https://github.com/SmailWolf/anvil-localization-studio/actions/runs/39437800774). All 15 Windows test suites, clean-PATH deployment probes and real CPU translation/GUI tests passed.
+
+Build references: [MSYS2 CI](https://www.msys2.org/docs/ci/), [Qt Windows deployment](https://doc.qt.io/qt-6/windows-deployment.html), [Qt command-line behavior on Windows](https://doc.qt.io/qt-6/qcommandlineparser.html).
